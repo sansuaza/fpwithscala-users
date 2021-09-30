@@ -9,7 +9,13 @@ class UserService[F[_]](repository: UserRepositoryAlgebra[F], validation: UserVa
       _ <- validation.doesNotExist(user)
       saved <- EitherT.liftF(repository.create(user))
     } yield saved
+
+  //getUsuario//
+
+
 }
+
+
 
 object UserService{
   def apply[F[_]](
