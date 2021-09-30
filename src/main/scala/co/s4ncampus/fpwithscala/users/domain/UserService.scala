@@ -19,6 +19,12 @@ class UserService[F[_]](repository: UserRepositoryAlgebra[F], validation: UserVa
     //    case None       => None
     //  }))
     //} yield found
+  
+  def putUser(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError, User] =
+    for {
+      _ <- validation.doesExist(user.legalId)
+      edited <- EitherT.liftF(repository.edit(user))
+    } yield edited
 }
 
 
