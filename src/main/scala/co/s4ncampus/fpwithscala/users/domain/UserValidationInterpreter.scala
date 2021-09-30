@@ -7,6 +7,11 @@ class UserValidationInterpreter[F[_]: Applicative](repository: UserRepositoryAlg
     extends UserValidationAlgebra[F] {
   def doesNotExist(user: User): EitherT[F, UserAlreadyExistsError, Unit] = 
     repository.findByLegalId(user.legalId).map(UserAlreadyExistsError).toLeft(())
+
+  //-> Tenemos dudas en la estructura
+  //getUsuario// (userLegalId:String) -> porque valida con el id, no con el User completo
+  def doesExist(userLegalId:String): EitherT[F, UserNotFoundError, Unit] =
+  repository.findByLegalId(userLegalId).map(user => UserNotFoundError(user.legalId)).toLeft(())
 }
 
 object UserValidationInterpreter {
