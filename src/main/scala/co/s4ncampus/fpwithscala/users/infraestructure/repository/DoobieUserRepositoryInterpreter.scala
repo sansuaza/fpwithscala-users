@@ -50,6 +50,8 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
   def edit(user: User): F[User] = {
     update(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
   }
+
+  def remove(legalId: String): F[Option[User]] = delete(legalId).option.transact(xa)
 }
 
 object DoobieUserRepositoryInterpreter {
