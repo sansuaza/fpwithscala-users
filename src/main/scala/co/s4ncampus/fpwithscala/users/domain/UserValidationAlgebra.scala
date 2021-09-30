@@ -10,7 +10,6 @@ trait UserValidationAlgebra[F[_]] {
 
 
   /* Fails with a non found user legalId (userByLegalId) */
-  //getUsuario// (userLegalId:String)
-  //def foundById(user: User): EitherT[F, UserNotFoundError, Unit]
+  def doesExist(userLegalId:String): EitherT[F, UserNotFoundError, Unit]
 
 }

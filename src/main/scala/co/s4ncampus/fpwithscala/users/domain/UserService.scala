@@ -11,7 +11,7 @@ class UserService[F[_]](repository: UserRepositoryAlgebra[F], validation: UserVa
     } yield saved
 
   //getUsuario//
-
+//...
 
 }
 
