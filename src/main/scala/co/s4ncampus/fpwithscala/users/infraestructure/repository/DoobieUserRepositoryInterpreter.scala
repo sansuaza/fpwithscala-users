@@ -32,10 +32,10 @@ private object UserSQL {
     sql"""
       UPDATE USERS
       SET
-        ${if(user.firstName != "")s"FIRST_NAME = '${user.firstName}'${getComma(user.lastName+user.email+user.phone)} "}
-        ${if(user.lastName != "")s"LAST_NAME = '${user.lastName}'${getComma(user.email+user.phone)} "}
-        ${if(user.email != "")s"EMAIL = '${user.email}'${getComma(user.phone)} "}
-        ${if(user.phone != "")s"PHONE = '${user.phone}' "}
+        ${if(user.firstName != "")s"FIRST_NAME = '${user.firstName}'${getComma(user.lastName+user.email+user.phone)} " else ""}
+        ${if(user.lastName != "")s"LAST_NAME = '${user.lastName}'${getComma(user.email+user.phone)} " else ""}
+        ${if(user.email != "")s"EMAIL = '${user.email}'${getComma(user.phone)} " else ""}
+        ${if(user.phone != "")s"PHONE = '${user.phone}' " else ""}
       WHERE LEGAL_ID = ${user.legalId}
     """.query[User]
   }
@@ -57,7 +57,9 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
 
   def findAll(): OptionT[F, User] = OptionT(selectAll().option.transact(xa))
 
-  //def update(user: User): F[User] = update(user).
+  def update(user: User): F[User] = update(user)
+
+  def delete(legalId: String): Boolean = delete(legalId)
 }
 
 object DoobieUserRepositoryInterpreter {
