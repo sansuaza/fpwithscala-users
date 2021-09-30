@@ -32,6 +32,20 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
                 }
         }
 
+    private def getUser(userService: UserService[F]): HttpRoutes[F] =
+        HttpRoutes.of[F] {
+            case req @ GET -> Root =>
+                val find = for {
+                    user <- req.as[User]
+                    found <- userService.getUser(user.legalId:String)
+                } yield (found)
+
+//                find.flatMap {
+//                    case Right(user: User) => Ok(s"The user you are looking for is ${user.firstName} ${user.lastName}")
+//                    case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with lega id ${existing.legalId}")
+//                }
+        }
+
     def endpoints(userService: UserService[F]): HttpRoutes[F] = {
         //To convine routes use the function `<+>`
         createUser(userService)
