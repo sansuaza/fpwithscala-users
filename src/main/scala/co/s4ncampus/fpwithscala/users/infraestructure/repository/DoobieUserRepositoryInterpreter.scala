@@ -33,9 +33,9 @@ private object UserSQL {
     """.update
   }
 
-  def delete(legalId: String): Query0[User] = sql"""
+  def delete(legalId: String): Update0 = sql"""
     DELETE FROM USERS WHERE LEGAL_ID = $legalId
-  """.query[User]
+  """.update
 }
 
 class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
@@ -51,8 +51,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
     update(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
   }
 
-  def remove(legalId: String): F[Option[User]] = delete(legalId).option.transact(xa)
-}
+  def remove(legalId: String): F[Boolean] = delete(legalId).run.transact(xa).map(cols => if(cols == 1) true else false)}
 
 object DoobieUserRepositoryInterpreter {
   def apply[F[_]: Bracket[?[_], Throwable]](xa: Transactor[F]): DoobieUserRepositoryInterpreter[F] =

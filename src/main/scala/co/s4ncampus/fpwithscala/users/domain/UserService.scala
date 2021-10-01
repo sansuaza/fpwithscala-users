@@ -26,11 +26,13 @@ class UserService[F[_]](repository: UserRepositoryAlgebra[F], validation: UserVa
       edited <- EitherT.liftF(repository.edit(user))
     } yield edited
   
-  def deleteUser(userLegalId: String)(implicit M: Monad[F]): EitherT[F, UserNotFoundError, User] =
+  def deleteUser(userLegalId: String)(implicit M: Monad[F]): EitherT[F, UserNotFoundError, Boolean] =
     for {
-      _ <- validation.doesExist(user.legalId)
-      deleted <- Either.liftF(repository.remove(userLegalId))
-    }yield deleted
+      _ <- validation.doesExist(userLegalId)
+      removed <- EitherT.liftF(repository.remove(userLegalId))
+    } yield removed
+    
+    //repository.remove(userLegalId)
 }
 
 

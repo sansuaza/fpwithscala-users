@@ -59,13 +59,15 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
 
     private def deleteUser(userService: UserService[F]): HttpRoutes[F] =
         HttpRoutes.of[F] {
-            case DELETE -> userLegalId => 
-                val find = userService.deleteUser(userLegalId).value  
+            case DELETE -> Root / userLegalId => 
+                val find = userService.deleteUser(userLegalId).value
             
-                action.flatMap {
-                    case Right(edited) => Ok(edited.asJson)
+                find.flatMap {
+                    case Right(_) => Ok("User Removed".asJson) //NoContent()
                     case Left(UserNotFoundError(userLegalId)) => Conflict(s"The user with legal id ${userLegalId} does not exists")
                 }
+                //    case None       => Conflict(s"The user with legal id ${userLegalId} does not exists")
+                //}
         }
         
 
