@@ -12,13 +12,6 @@ class UserService[F[_]](repository: UserRepositoryAlgebra[F], validation: UserVa
   
   def getUser(userLegalId: String): OptionT[F, User] =
     repository.findByLegalId(userLegalId)
-    //for {
-    //  _ <- validation.doesExist(userLegalId)
-    //  found <- EitherT.liftF((repository.findByLegalId(userLegalId).flatMap{
-    //    case Some(user) => user
-    //    case None       => None
-    //  }))
-    //} yield found
   
   def putUser(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError, User] =
     for {
@@ -31,10 +24,7 @@ class UserService[F[_]](repository: UserRepositoryAlgebra[F], validation: UserVa
       _ <- validation.doesExist(userLegalId)
       removed <- EitherT.liftF(repository.remove(userLegalId))
     } yield removed
-    
-    //repository.remove(userLegalId)
 }
-
 
 object UserService{
   def apply[F[_]](
