@@ -21,6 +21,21 @@ private object UserSQL {
     WHERE LEGAL_ID = $legalId
   """.query[User]
 
+  def update(user: User): Update0 = {
+    sql"""
+      UPDATE USERS 
+      SET 
+        FIRST_NAME = ${user.firstName},
+        LAST_NAME = ${user.lastName},
+        EMAIL = ${user.email},
+        PHONE = ${user.phone}
+      WHERE LEGAL_ID = ${user.legalId}
+    """.update
+  }
+
+  def delete(legalId: String): Update0 = sql"""
+    DELETE FROM USERS WHERE LEGAL_ID = $legalId
+  """.update
 }
 
 class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
@@ -28,11 +43,15 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
   import UserSQL._
 
   def create(user: User): F[User] = 
-    insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
+    insert(user).withUniqueGeneratedKeys[Long]("id").map(id => user.copy(id = id.some)).transact(xa)
 
   def findByLegalId(legalId: String): OptionT[F, User] = OptionT(selectByLegalId(legalId).option.transact(xa))
 
-}
+  def edit(user: User): F[User] = {
+    update(user).withUniqueGeneratedKeys[Long]("id").map(id => user.copy(id = id.some)).transact(xa)
+  }
+
+  def remove(legalId: String): F[Boolean] = delete(legalId).run.transact(xa).map(cols => if(cols == 1) true else false)}
 
 object DoobieUserRepositoryInterpreter {
   def apply[F[_]: Bracket[?[_], Throwable]](xa: Transactor[F]): DoobieUserRepositoryInterpreter[F] =
